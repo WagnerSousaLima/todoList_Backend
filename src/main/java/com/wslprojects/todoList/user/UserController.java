@@ -1,16 +1,27 @@
 package com.wslprojects.todoList.user;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    @PostMapping("/")
-    public void create(@RequestBody UserModel userModel){
+    @Autowired
+    private IUserRepository userRepository;
 
-        System.out.println(userModel.getName());
+    @PostMapping("/")
+    public ResponseEntity create(@RequestBody UserModel userModel){
+
+       var user =  this.userRepository.findByUsername(userModel.getUsername());
+       if (user != null){
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User exists");
+       }
+
+        var userCreated = this.userRepository.save(userModel);
+       return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
 
     }
-
 }
